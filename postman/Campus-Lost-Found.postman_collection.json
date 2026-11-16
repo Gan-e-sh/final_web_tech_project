@@ -1,0 +1,26 @@
+{
+  "info": {
+    "name": "Campus Lost and Found API",
+    "description": "API tests for the Campus Lost and Found Portal",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "itemId", "value": "replace-with-item-id" },
+    { "key": "claimId", "value": "replace-with-claim-id" }
+  ],
+  "item": [
+    { "name": "Health check", "request": { "method": "GET", "url": "{{baseUrl}}/api/health" } },
+    { "name": "Register user", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"name\":\"Test Student\",\"email\":\"student1@example.com\",\"password\":\"Student123!\"}"}, "url": "{{baseUrl}}/api/auth/register" } },
+    { "name": "Login", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"email\":\"student1@example.com\",\"password\":\"Student123!\"}"}, "url": "{{baseUrl}}/api/auth/login" } },
+    { "name": "Invalid login", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"email\":\"student1@example.com\",\"password\":\"wrong\"}"}, "url": "{{baseUrl}}/api/auth/login" } },
+    { "name": "Get all items", "request": { "method": "GET", "url": "{{baseUrl}}/api/items" } },
+    { "name": "Protected route without token (expect 401)", "request": { "method": "GET", "url": "{{baseUrl}}/api/items/mine" } },
+    { "name": "Create item", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{token}}"}], "body": {"mode":"formdata","formdata":[{"key":"title","value":"Test umbrella","type":"text"},{"key":"type","value":"found","type":"text"},{"key":"category","value":"Accessories","type":"text"},{"key":"description","value":"Black umbrella near library","type":"text"},{"key":"location","value":"Library","type":"text"},{"key":"date","value":"2026-11-11","type":"text"}]}, "url": "{{baseUrl}}/api/items" } },
+    { "name": "Invalid item (expect 400)", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"title\":\"\"}"}, "url": "{{baseUrl}}/api/items" } },
+    { "name": "Update item status", "request": { "method": "PATCH", "header": [{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"status\":\"returned\"}"}, "url": "{{baseUrl}}/api/items/{{itemId}}/status" } },
+    { "name": "Submit claim", "request": { "method": "POST", "header": [{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}], "body": {"mode":"raw","raw":"{\"itemId\":\"{{itemId}}\",\"message\":\"I can identify the unique sticker on this item.\"}"}, "url": "{{baseUrl}}/api/claims" } },
+    { "name": "Get my claims", "request": { "method": "GET", "header": [{"key":"Authorization","value":"Bearer {{token}}"}], "url": "{{baseUrl}}/api/claims/mine" } }
+  ]
+}
