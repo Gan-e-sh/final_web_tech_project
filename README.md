@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Campus Lost and Found Portal
 
 A responsive full-stack campus portal built with HTML, CSS, JavaScript, Node.js, Express and MongoDB.
@@ -75,3 +76,6 @@ Import `postman/Campus-Lost-Found.postman_collection.json`. Register/login to ob
 - For production deployment, configure HTTPS, strict CORS, secure token storage (prefer secure, HttpOnly cookies), rate limiting, stronger file validation, and managed database backups.
 - The current frontend stores the JWT in localStorage for simplicity in a student demonstration. Discuss this security trade-off in your viva.
 - Add your institution's prescribed report format, screenshots, deployment URL and AI-use disclosure before final submission.
+=======
+# final_web_tech_project
+>>>>>>> b8dd42c4650b7d27d92abfa51c6f2db68563bb11
