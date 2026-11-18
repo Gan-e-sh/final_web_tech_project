@@ -1,4 +1,6 @@
-require("dotenv").config();
+require("dotenv").config({
+    path: require("path").resolve(__dirname, "../.env")
+});
 const connectDB = require("./config/db");
 const User = require("./models/User");
 const Item = require("./models/Item");

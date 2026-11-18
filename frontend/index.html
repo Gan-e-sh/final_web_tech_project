@@ -92,5 +92,26 @@
     </form>
   </dialog>
   <script src="app.js" defer></script>
+  <div id="claimDialog" class="hidden">
+    <div class="claim-box">
+        <h2>Submit Your Claim</h2>
+
+        <p>Explain how you can prove this item belongs to you.</p>
+
+        <textarea
+            id="claimMessage"
+            rows="4"
+            placeholder="Enter your claim details..."
+        ></textarea>
+
+        <button type="button" onclick="window.confirmClaim()">
+            Submit Claim
+        </button>
+
+        <button type="button" onclick="window.closeClaimDialog()">
+            Cancel
+        </button>
+    </div>
+</div>
 </body>
 </html>

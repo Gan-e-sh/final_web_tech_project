@@ -3,3 +3,73 @@
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif}.topbar{height:76px;padding:0 7%;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}.brand{font:800 1.4rem Manrope,sans-serif;color:var(--ink);text-decoration:none}.brand span,.hero h1 span{color:var(--blue)}nav{display:flex;align-items:center;gap:25px}nav a{color:var(--muted);text-decoration:none;font-size:.92rem}nav a:hover{color:var(--blue)}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;background:var(--blue);color:#fff;padding:12px 19px;font-weight:700;text-decoration:none;cursor:pointer}.btn:hover{filter:brightness(.94)}.btn-outline{background:#fff;color:var(--blue);border:1px solid #ccd6ff}.hero{padding:86px 9%;display:grid;grid-template-columns:1.5fr 1fr;gap:50px;align-items:center;background:linear-gradient(120deg,#edf1ff,#f8faff)}.eyebrow{color:var(--blue);font-weight:800;letter-spacing:1.6px;font-size:.72rem}.hero h1{font:800 clamp(2.5rem,5vw,4.5rem)/1.08 Manrope;margin:14px 0}.hero-copy{color:var(--muted);max-width:540px;line-height:1.8;margin-bottom:27px}.hero-card{background:#fff;padding:35px;border:1px solid var(--line);border-radius:22px;box-shadow:0 18px 50px #263b6810}.hero-icon{font-size:3.2rem;color:var(--blue)}.hero-card p,.muted{color:var(--muted);line-height:1.7}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;padding:0 9%;margin-top:-1px}.stats article{background:#fff;border:1px solid var(--line);padding:22px;border-radius:14px;display:flex;flex-direction:column;gap:6px}.stats strong{font:800 1.8rem Manrope;color:var(--blue)}.stats span{color:var(--muted);font-size:.9rem}.section{padding:70px 9%}.section-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}.section h2{font:800 2rem Manrope;margin:7px 0}.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;margin-bottom:24px}input,select,textarea{font:inherit;padding:12px 13px;border:1px solid #dce2ed;border-radius:9px;background:#fff;color:var(--ink);width:100%;min-width:0}input:focus,select:focus,textarea:focus{outline:2px solid #cbd5ff;border-color:var(--blue)}.items-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.item-card,.dashboard-panel{background:#fff;border:1px solid var(--line);border-radius:15px;padding:20px}.item-card h3{margin:12px 0 8px;font:700 1.1rem Manrope}.item-card p{color:var(--muted);line-height:1.55;font-size:.92rem}.item-meta{display:flex;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:.8rem}.pill{display:inline-block;border-radius:30px;padding:5px 10px;font-size:.75rem;font-weight:700;background:#edf1ff;color:var(--blue)}.pill.found,.pill.approved{background:#e5f7ef;color:var(--green)}.pill.lost,.pill.pending{background:#fff1e6;color:#a65c19}.pill.rejected{background:#ffebed;color:var(--red)}.item-card img{width:100%;height:150px;object-fit:cover;border-radius:10px}.item-card button{margin-top:12px}.form-section{background:#edf1fa}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:17px;background:#fff;padding:25px;border-radius:16px;border:1px solid var(--line)}label{display:flex;flex-direction:column;gap:8px;font-size:.9rem;font-weight:700}.full{grid-column:1/-1}.message{color:var(--red);min-height:20px}.dashboard-panel{line-height:1.7;overflow-x:auto}.dashboard-panel table{width:100%;border-collapse:collapse;min-width:550px}.dashboard-panel th,.dashboard-panel td{text-align:left;padding:11px;border-bottom:1px solid var(--line)}.dashboard-panel button{margin:3px}.hidden{display:none!important}footer{padding:30px 9%;background:#17243b;color:#fff;display:flex;justify-content:space-between}footer span{color:#bac5d8}dialog{border:0;border-radius:18px;padding:25px;width:min(430px,92vw);box-shadow:0 20px 80px #101c3840}dialog::backdrop{background:#0d193b88}.dialog-close{display:flex;justify-content:flex-end}.dialog-close button{border:0;background:none;font-size:1.7rem;cursor:pointer}.auth-tabs{display:flex;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px}.auth-tabs button{border:0;background:none;padding:9px 14px;cursor:pointer}.auth-tabs button.active{color:var(--blue);font-weight:800;border-bottom:2px solid var(--blue)}.auth-form{display:grid;gap:15px;padding-top:15px}.auth-form h2{font-family:Manrope}.empty{color:var(--muted);padding:20px 0}
 @media(max-width:900px){.hero{padding:60px 6%;grid-template-columns:1fr}.stats{padding:0 6%}.section{padding:55px 6%}.filters{grid-template-columns:1fr 1fr}.items-grid{grid-template-columns:repeat(2,1fr)}nav{gap:12px}nav a{font-size:.82rem}}
 @media(max-width:600px){.topbar{height:auto;padding:15px 5%;align-items:flex-start;gap:15px;flex-direction:column}nav{width:100%;flex-wrap:wrap}.hero{padding:48px 6%}.stats{grid-template-columns:1fr 1fr}.section{padding:45px 5%}.section-heading{align-items:flex-start;gap:12px;flex-direction:column}.filters,.form-grid{grid-template-columns:1fr}.items-grid{grid-template-columns:1fr}.full{grid-column:auto}footer{gap:10px;flex-direction:column}}
+
+/* Claim Dialog */
+#claimDialog {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#claimDialog.hidden {
+    display: none;
+}
+
+.claim-box {
+    width: 100%;
+    max-width: 450px;
+    background: #101827;
+    color: #ffffff;
+    padding: 28px;
+    border: 1px solid #263b5b;
+    border-radius: 18px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.4);
+}
+
+.claim-box h2 {
+    margin-top: 0;
+    color: #60a5fa;
+}
+
+.claim-box p {
+    color: #b8c4d6;
+    line-height: 1.6;
+}
+
+#claimMessage {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+    margin: 15px 0;
+    border: 1px solid #34445d;
+    border-radius: 10px;
+    background: #172337;
+    color: white;
+    font: inherit;
+    resize: vertical;
+}
+
+#claimMessage:focus {
+    outline: 2px solid #3b82f6;
+    border-color: transparent;
+}
+
+.claim-box button {
+    padding: 11px 18px;
+    margin: 5px 5px 0 0;
+    border: none;
+    border-radius: 9px;
+    background: #2563eb;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.claim-box button:hover {
+    background: #1d4ed8;
+}

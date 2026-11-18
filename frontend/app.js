@@ -44,12 +44,29 @@ async function request(path, options = {}) {
 }
 
 // AUTHENTICATION UI
+
+// AUTHENTICATION UI
+
 function updateAuthUI() {
     $("#authButton").classList.toggle("hidden", !!currentUser);
     $("#logoutButton").classList.toggle("hidden", !currentUser);
 
-    $("#dashboardContent").innerHTML = currentUser
-        ? `
+    if (!currentUser) {
+        $("#dashboardContent").innerHTML =
+            "<p>Login to view your reports and claims.</p>";
+    }
+    else if (currentUser.role === "admin") {
+        $("#dashboardContent").innerHTML = `
+            <h2>Welcome, Administrator!</h2>
+            <p>
+                Signed in as
+                <strong>${escapeHTML(currentUser.name)}</strong>
+                (${escapeHTML(currentUser.email)}).
+            </p>
+        `;
+    }
+    else {
+        $("#dashboardContent").innerHTML = `
             <p>
                 Signed in as
                 <strong>${escapeHTML(currentUser.name)}</strong>
@@ -58,18 +75,20 @@ function updateAuthUI() {
             <div id="myListings"></div>
             <h3>My claims</h3>
             <div id="myClaims"></div>
-        `
-        : "<p>Login to view your reports and claims.</p>";
+        `;
+    }
 
     $("#adminPanel").classList.toggle(
         "hidden",
         currentUser?.role !== "admin"
     );
 
-    if (currentUser) {
+    // Load student dashboard
+    if (currentUser?.role === "user") {
         loadDashboard();
     }
 
+    // Load admin dashboard
     if (currentUser?.role === "admin") {
         loadAdmin();
     }
@@ -121,6 +140,9 @@ async function loadItems() {
 }
 
 // ITEM CARD
+
+// ITEM CARD
+
 function itemCard(item) {
     const reportedById =
         item.reportedBy?._id || item.reportedBy;
@@ -128,9 +150,13 @@ function itemCard(item) {
     const currentUserId =
         currentUser?._id || currentUser?.id;
 
+    const canSubmitClaim =
+        currentUser?.role === "user" &&
+        String(reportedById) !== String(currentUserId) &&
+        item.status === "open";
+
     return `
         <article class="item-card">
-
             ${item.image
                 ? `<img src="${escapeHTML(item.image)}"
                     alt="${escapeHTML(item.title)}">`
@@ -146,7 +172,6 @@ function itemCard(item) {
             </span>
 
             <h3>${escapeHTML(item.title)}</h3>
-
             <p>${escapeHTML(item.description)}</p>
 
             <div class="item-meta">
@@ -154,53 +179,62 @@ function itemCard(item) {
                 <span>◷ ${new Date(item.date).toLocaleDateString()}</span>
             </div>
 
-            <p>
-                Status:
-                <strong>${escapeHTML(item.status)}</strong>
-            </p>
+            <p>Status: <strong>${escapeHTML(item.status)}</strong></p>
 
-            ${currentUser && String(reportedById) !== String(currentUserId)
-                ? `<button class="btn"
-                    onclick="submitClaim('${item._id}')">
-                    Submit claim
+            ${canSubmitClaim
+                ? `<button class="btn" type="button"
+                    onclick="window.openClaimDialog('${item._id}')">
+                    Submit Claim
                    </button>`
                 : ""
             }
-
         </article>
     `;
 }
 
 // SUBMIT CLAIM
-window.submitClaim = async (itemId) => {
-    if (!currentUser) {
-        return alert("Please login before submitting a claim.");
+
+let selectedClaimItemId = null;
+
+window.openClaimDialog = (itemId) => {
+    selectedClaimItemId = itemId;
+
+    $("#claimMessage").value = "";
+    $("#claimDialog").classList.remove("hidden");
+};
+
+window.closeClaimDialog = () => {
+    $("#claimDialog").classList.add("hidden");
+    selectedClaimItemId = null;
+};
+
+window.confirmClaim = async () => {
+    const message = $("#claimMessage").value.trim();
+
+    if (!message) {
+        alert("Please enter your claim details.");
+        return;
     }
-
-    const message = prompt(
-        "Describe how you can identify or prove this item belongs to you:"
-    );
-
-    if (!message || !message.trim()) return;
 
     try {
         await request("/claims", {
             method: "POST",
             body: JSON.stringify({
-                itemId,
-                message: message.trim()
+                itemId: selectedClaimItemId,
+                message: message
             })
         });
 
-        alert("Claim submitted for review.");
+        alert("Claim submitted successfully!");
 
+        window.closeClaimDialog();
         loadDashboard();
+        loadItems();
 
     } catch (err) {
         alert(err.message);
     }
 };
-
 // LOAD USER DASHBOARD
 async function loadDashboard() {
     try {
@@ -228,10 +262,18 @@ async function loadDashboard() {
                                 <td>${escapeHTML(i.type)}</td>
                                 <td>${escapeHTML(i.status)}</td>
                                 <td>
-                                    <button class="btn btn-outline"
-                                        onclick="updateItemStatus('${i._id}','returned')">
-                                        Mark returned
-                                    </button>
+                                    
+<td>
+    ${
+        i.status !== "returned"
+            ? `<button class="btn btn-outline" type="button"
+                onclick="window.updateItemStatus('${i._id}', 'returned')">
+                Mark Returned
+               </button>`
+            : `<span class="pill">Returned ✓</span>`
+    }
+</td>
+
                                 </td>
                             </tr>
                         `).join("")}
@@ -266,18 +308,23 @@ async function loadDashboard() {
 }
 
 // UPDATE ITEM STATUS
+
 window.updateItemStatus = async (id, status) => {
     try {
-        await request(`/items/${id}/status`, {
+        const result = await request(`/items/${id}/status`, {
             method: "PATCH",
             body: JSON.stringify({ status })
         });
 
-        loadDashboard();
-        loadItems();
+        alert("Item status updated successfully!");
+
+        await Promise.all([
+            loadDashboard(),
+            loadItems()
+        ]);
 
     } catch (err) {
-        alert(err.message);
+        alert("Could not update item: " + err.message);
     }
 };
 
@@ -326,10 +373,13 @@ async function loadAdmin() {
                                                         Approve
                                                     </button>
 
-                                                    <button class="btn btn-outline"
-                                                        onclick="reviewClaim('${c._id}','rejected')">
-                                                        Reject
-                                                    </button>
+                                                    ${i.status !== "returned"
+    ? `<button class="btn btn-outline" type="button"
+        onclick="window.updateItemStatus('${i._id}', 'returned')">
+        Mark Returned
+       </button>`
+    : `<span class="pill">Returned</span>`
+}
                                                 `
                                                 : "—"
                                         }
