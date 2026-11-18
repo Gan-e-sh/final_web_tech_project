@@ -45,8 +45,6 @@ async function request(path, options = {}) {
 
 // AUTHENTICATION UI
 
-// AUTHENTICATION UI
-
 function updateAuthUI() {
     $("#authButton").classList.toggle("hidden", !!currentUser);
     $("#logoutButton").classList.toggle("hidden", !currentUser);
@@ -83,18 +81,17 @@ function updateAuthUI() {
         currentUser?.role !== "admin"
     );
 
-    // Load student dashboard
     if (currentUser?.role === "user") {
         loadDashboard();
     }
 
-    // Load admin dashboard
     if (currentUser?.role === "admin") {
         loadAdmin();
     }
 }
 
 // LOAD ITEMS
+
 async function loadItems() {
     const params = new URLSearchParams();
 
@@ -138,8 +135,6 @@ async function loadItems() {
         $("#itemsGrid").textContent = err.message;
     }
 }
-
-// ITEM CARD
 
 // ITEM CARD
 
@@ -198,7 +193,6 @@ let selectedClaimItemId = null;
 
 window.openClaimDialog = (itemId) => {
     selectedClaimItemId = itemId;
-
     $("#claimMessage").value = "";
     $("#claimDialog").classList.remove("hidden");
 };
@@ -235,7 +229,9 @@ window.confirmClaim = async () => {
         alert(err.message);
     }
 };
+
 // LOAD USER DASHBOARD
+
 async function loadDashboard() {
     try {
         const [items, claims] = await Promise.all([
@@ -262,18 +258,14 @@ async function loadDashboard() {
                                 <td>${escapeHTML(i.type)}</td>
                                 <td>${escapeHTML(i.status)}</td>
                                 <td>
-                                    
-<td>
-    ${
-        i.status !== "returned"
-            ? `<button class="btn btn-outline" type="button"
-                onclick="window.updateItemStatus('${i._id}', 'returned')">
-                Mark Returned
-               </button>`
-            : `<span class="pill">Returned ✓</span>`
-    }
-</td>
-
+                                    ${
+                                        i.status !== "returned"
+                                            ? `<button class="btn btn-outline" type="button"
+                                                onclick="window.updateItemStatus('${i._id}', 'returned')">
+                                                Mark Returned
+                                               </button>`
+                                            : `<span class="pill">Returned ✓</span>`
+                                    }
                                 </td>
                             </tr>
                         `).join("")}
@@ -311,7 +303,7 @@ async function loadDashboard() {
 
 window.updateItemStatus = async (id, status) => {
     try {
-        const result = await request(`/items/${id}/status`, {
+        await request(`/items/${id}/status`, {
             method: "PATCH",
             body: JSON.stringify({ status })
         });
@@ -323,12 +315,17 @@ window.updateItemStatus = async (id, status) => {
             loadItems()
         ]);
 
+        if (currentUser?.role === "admin") {
+            await loadAdmin();
+        }
+
     } catch (err) {
         alert("Could not update item: " + err.message);
     }
 };
 
 // ADMIN DASHBOARD
+
 async function loadAdmin() {
     try {
         const [items, claims] = await Promise.all([
@@ -368,25 +365,21 @@ async function loadAdmin() {
                                         ${
                                             c.status === "pending"
                                                 ? `
-                                                    <button class="btn"
-                                                        onclick="reviewClaim('${c._id}','approved')">
+                                                    <button class="btn" type="button"
+                                                        onclick="window.reviewClaim('${c._id}', 'approved')">
                                                         Approve
                                                     </button>
 
-                                                    ${i.status !== "returned"
-    ? `<button class="btn btn-outline" type="button"
-        onclick="window.updateItemStatus('${i._id}', 'returned')">
-        Mark Returned
-       </button>`
-    : `<span class="pill">Returned</span>`
-}
+                                                    <button class="btn btn-outline" type="button"
+                                                        onclick="window.reviewClaim('${c._id}', 'rejected')">
+                                                        Reject
+                                                    </button>
                                                 `
                                                 : "—"
                                         }
                                     </td>
                                 </tr>
                             `).join("")}
-
                         </table>
                     `
                     : "<p>No claims.</p>"
@@ -394,11 +387,30 @@ async function loadAdmin() {
 
             <h3>All listings</h3>
 
-            <p>
-                ${items.map(i =>
-                    escapeHTML(i.title) + " (" + escapeHTML(i.status) + ")"
-                ).join(" · ")}
-            </p>
+            <table>
+                <tr>
+                    <th>Item</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+                ${items.map(i => `
+                    <tr>
+                        <td>${escapeHTML(i.title)}</td>
+                        <td>${escapeHTML(i.status)}</td>
+                        <td>
+                            ${
+                                i.status !== "returned"
+                                    ? `<button class="btn btn-outline" type="button"
+                                        onclick="window.updateItemStatus('${i._id}', 'returned')">
+                                        Mark Returned
+                                       </button>`
+                                    : `<span class="pill">Returned ✓</span>`
+                            }
+                        </td>
+                    </tr>
+                `).join("")}
+            </table>
         `;
 
     } catch (err) {
@@ -407,6 +419,7 @@ async function loadAdmin() {
 }
 
 // REVIEW CLAIM
+
 window.reviewClaim = async (id, status) => {
     try {
         await request(`/claims/${id}`, {
@@ -414,8 +427,12 @@ window.reviewClaim = async (id, status) => {
             body: JSON.stringify({ status })
         });
 
-        loadAdmin();
-        loadItems();
+        alert(`Claim ${status} successfully!`);
+
+        await Promise.all([
+            loadAdmin(),
+            loadItems()
+        ]);
 
     } catch (err) {
         alert(err.message);
@@ -423,6 +440,7 @@ window.reviewClaim = async (id, status) => {
 };
 
 // OPEN LOGIN
+
 $("#authButton").addEventListener("click", () => {
     authMode = "login";
     setAuthMode();
@@ -430,6 +448,7 @@ $("#authButton").addEventListener("click", () => {
 });
 
 // LOGOUT
+
 $("#logoutButton").addEventListener("click", () => {
     token = null;
     currentUser = null;
@@ -442,6 +461,7 @@ $("#logoutButton").addEventListener("click", () => {
 });
 
 // LOGIN / REGISTER SWITCH
+
 $("#showLogin").addEventListener("click", () => {
     authMode = "login";
     setAuthMode();
@@ -453,6 +473,7 @@ $("#showRegister").addEventListener("click", () => {
 });
 
 // SET AUTH MODE
+
 function setAuthMode() {
     $("#authTitle").textContent =
         authMode === "login"
@@ -478,10 +499,10 @@ function setAuthMode() {
 }
 
 // LOGIN / REGISTER FORM
+
 $("#authForm").addEventListener("submit", async (event) => {
     event.preventDefault();
 
-    // Save form reference before async request
     const formElement = event.currentTarget;
 
     const form = new FormData(formElement);
@@ -507,7 +528,6 @@ $("#authForm").addEventListener("submit", async (event) => {
 
         $("#authDialog").close();
 
-        // Reset using saved form reference
         formElement.reset();
 
         updateAuthUI();
@@ -519,13 +539,13 @@ $("#authForm").addEventListener("submit", async (event) => {
 });
 
 // REPORT SUBMISSION
+
 const reportForm = $("#reportForm");
 
 if (reportForm) {
     reportForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        // Save form reference before async request
         const formElement = event.currentTarget;
 
         if (!currentUser || !token) {
@@ -545,7 +565,6 @@ if (reportForm) {
             $("#reportMessage").textContent =
                 "Your report was submitted successfully.";
 
-            // Reset using saved form reference
             formElement.reset();
 
             loadItems();
@@ -558,6 +577,7 @@ if (reportForm) {
 }
 
 // SEARCH
+
 $("#searchButton").addEventListener("click", loadItems);
 
 $("#sortFilter").addEventListener("change", loadItems);
@@ -574,5 +594,6 @@ $("#categoryFilter").addEventListener("change", loadItems);
 $("#typeFilter").addEventListener("change", loadItems);
 
 // INITIAL LOAD
+
 updateAuthUI();
 loadItems();
